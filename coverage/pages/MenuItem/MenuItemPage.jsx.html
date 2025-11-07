@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for layouts/BasicLayout/BasicLayout.js</title>
+    <title>Code coverage report for pages/MenuItem/MenuItemPage.jsx</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../prettify.css" />
     <link rel="stylesheet" href="../../base.css" />
@@ -19,13 +19,13 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../index.html">All files</a> / <a href="index.html">layouts/BasicLayout</a> BasicLayout.js</h1>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">pages/MenuItem</a> MenuItemPage.jsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
@@ -89,22 +89,26 @@
 <a name='L24'></a><a href='#L24'>24</a>
 <a name='L25'></a><a href='#L25'>25</a>
 <a name='L26'></a><a href='#L26'>26</a>
-<a name='L27'></a><a href='#L27'>27</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">40x</span>
-<span class="cline-any cline-yes">40x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">40x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -115,30 +119,44 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Container } from "react-bootstrap";
-import Footer from "main/components/Nav/Footer";
-import AppNavbar from "main/components/Nav/AppNavbar";
-import { useCurrentUser, useLogout } from "main/utils/currentUser";
-import { useSystemInfo } from "main/utils/systemInfo";
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { useCurrentUser } from "main/utils/currentUser";
+import { useBackend } from "main/utils/useBackend";
+import BasicLayout from "main/layouts/BasicLayout/BasicLayout";
+import MenuItemTable from "main/components/MenuItem/MenuItemTable";
+import { useParams } from "react-router";
 &nbsp;
-export default function BasicLayout({ children }) {
-  const { data: currentUser } = useCurrentUser();
-  const { data: systemInfo } = useSystemInfo();
-&nbsp;
-  const doLogout = useLogout().mutate;
+export default function MenuItemPage() {
+  const currentUser = useCurrentUser();
+  const {
+    "date-time": date,
+    "dining-commons-code": diningCommons,
+    meal,
+  } = useParams();
+  const { data: menuItems } = useBackend(
+    // Stryker disable next-line all : don't test internal caching of React Query
+    [`/api/diningcommons/${date}/${diningCommons}/${meal}`],
+    {
+      // Stryker disable next-line all : the default method is get, so replacing with an empty string will do nothing
+      method: "GET",
+      url: `/api/diningcommons/${date}/${diningCommons}/${meal}`,
+    },
+    // Stryker disable next-line all : Don't test empty initial data
+    [],
+  );
 &nbsp;
   return (
-    &lt;div className="d-flex flex-column min-vh-100"&gt;
-      &lt;AppNavbar
-        currentUser={currentUser}
-        systemInfo={systemInfo}
-        doLogout={doLogout}
-      /&gt;
-      &lt;Container expand="xl" className="pt-4 flex-grow-1"&gt;
-        {children}
-      &lt;/Container&gt;
-      &lt;Footer /&gt;
-    &lt;/div&gt;
+    &lt;BasicLayout&gt;
+      &lt;h2&gt;{meal.at(0).toUpperCase() + meal.substring(1)}&lt;/h2&gt;
+      &lt;MenuItemTable currentUser={currentUser} menuItems={menuItems} /&gt;
+    &lt;/BasicLayout&gt;
   );
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -148,7 +166,7 @@ export default function BasicLayout({ children }) {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-07T00:19:21.298Z
+                at 2025-11-07T21:54:12.167Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
