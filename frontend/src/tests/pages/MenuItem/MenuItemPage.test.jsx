@@ -2,6 +2,7 @@ import axios from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { vi } from "vitest";
+import userEvent from "@testing-library/user-event";
 
 import { systemInfoFixtures } from "fixtures/systemInfoFixtures";
 import { apiCurrentUserFixtures } from "fixtures/currentUserFixtures";
@@ -11,6 +12,15 @@ import MenuItemPage from "main/pages/MenuItem/MenuItemPage";
 import { menuItemFixtures } from "fixtures/menuItemFixtures";
 
 const mockToast = vi.fn();
+const mockNavigate = vi.fn();
+
+// Create a mutable params object that can be changed in tests
+let mockParams = {
+  "date-time": "2025-03-11",
+  "dining-commons-code": "carrillo",
+  meal: "breakfast",
+};
+
 vi.mock("react-toastify", async () => {
   const originalModule = await vi.importActual("react-toastify");
   return {
@@ -25,11 +35,8 @@ vi.mock("react-router", async () => {
   return {
     __esModule: true,
     ...originalModule,
-    useParams: () => ({
-      "date-time": "2025-03-11",
-      "dining-commons-code": "carrillo",
-      meal: "breakfast",
-    }),
+    useParams: () => mockParams,
+    useNavigate: () => mockNavigate,
   };
 });
 
@@ -86,6 +93,15 @@ describe("MenuItemPage renders table correctly", () => {
     queryClient = new QueryClient();
   });
 
+  beforeEach(() => {
+    // Reset mock params to default
+    mockParams = {
+      "date-time": "2025-03-11",
+      "dining-commons-code": "carrillo",
+      meal: "breakfast",
+    };
+  });
+
   afterEach(() => {
     axiosMock.reset();
     queryClient.clear();
@@ -118,5 +134,102 @@ describe("MenuItemPage renders table correctly", () => {
         screen.getByTestId(`MenuItemTable-cell-row-${i}-col-station`),
       ).toHaveTextContent(menuItemFixtures.fiveMenuItems[i].station);
     }
+  });
+
+  test("date selector is present and navigates on change", async () => {
+    mockNavigate.mockClear();
+    axiosMock
+      .onGet("/api/diningcommons/2025-03-11/carrillo/breakfast")
+      .reply(200, menuItemFixtures.fiveMenuItems);
+    axiosMock
+      .onGet("/api/systemInfo")
+      .reply(200, systemInfoFixtures.showingNeither);
+    axiosMock
+      .onGet("/api/currentUser")
+      .reply(200, apiCurrentUserFixtures.userOnly);
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <MenuItemPage />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    // Wait for the page to load
+    await screen.findByTestId("MenuItemTable-cell-row-0-col-name");
+
+    // Check that date selector is present
+    const dateSelector = screen.getByTestId("date-selector");
+    expect(dateSelector).toBeInTheDocument();
+    expect(dateSelector).toHaveValue("2025-03-11");
+
+    // Change the date
+    const user = userEvent.setup();
+    await user.clear(dateSelector);
+    await user.type(dateSelector, "2025-03-15");
+
+    // Verify navigation was called with the new URL
+    expect(mockNavigate).toHaveBeenCalledWith(
+      "/diningcommons/2025-03-15/carrillo/breakfast",
+    );
+  });
+
+  test("date selector updates when URL date param changes", async () => {
+    // Set initial params
+    mockParams = {
+      "date-time": "2025-03-11",
+      "dining-commons-code": "carrillo",
+      meal: "breakfast",
+    };
+
+    axiosMock
+      .onGet("/api/diningcommons/2025-03-11/carrillo/breakfast")
+      .reply(200, menuItemFixtures.fiveMenuItems);
+    axiosMock
+      .onGet("/api/diningcommons/2025-03-20/carrillo/breakfast")
+      .reply(200, menuItemFixtures.fiveMenuItems);
+    axiosMock
+      .onGet("/api/systemInfo")
+      .reply(200, systemInfoFixtures.showingNeither);
+    axiosMock
+      .onGet("/api/currentUser")
+      .reply(200, apiCurrentUserFixtures.userOnly);
+
+    const { rerender } = render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <MenuItemPage />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    // Wait for the page to load
+    await screen.findByTestId("MenuItemTable-cell-row-0-col-name");
+
+    // Check initial date
+    const dateSelector = screen.getByTestId("date-selector");
+    expect(dateSelector).toHaveValue("2025-03-11");
+
+    // Simulate URL change by updating the mock params
+    mockParams = {
+      "date-time": "2025-03-20",
+      "dining-commons-code": "carrillo",
+      meal: "breakfast",
+    };
+
+    // Rerender to trigger useEffect with new params
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <MenuItemPage />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    // Wait for the update - this verifies useEffect runs and updates selectedDate
+    await waitFor(() => {
+      expect(dateSelector).toHaveValue("2025-03-20");
+    });
   });
 });
