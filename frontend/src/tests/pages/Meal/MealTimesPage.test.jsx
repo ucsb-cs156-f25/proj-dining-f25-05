@@ -31,7 +31,6 @@ describe("MealTimesPage tests", () => {
   beforeEach(() => {
     vi.spyOn(console, "error");
     console.error.mockImplementation(() => null);
-    queryClient.clear();
   });
   beforeEach(() => {
     axiosMock.reset();
@@ -71,51 +70,112 @@ describe("MealTimesPage tests", () => {
     expect(screen.getByText("Breakfast")).toBeInTheDocument();
     expect(screen.getByText("Lunch")).toBeInTheDocument();
     expect(screen.getByText("Dinner")).toBeInTheDocument();
+    
+    // Verify loading is not shown when we have data
+    expect(screen.queryByText("Loading meals...")).not.toBeInTheDocument();
   });
 
   test("displays loading spinner while fetching data", async () => {
-    // Use a delay to ensure we can catch the loading state
     axiosMock.reset();
-    axiosMock.onGet("/api/diningcommons/2024-11-25/portola").reply(() => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve([200, mealFixtures.threeMeals]);
-        }, 100);
+    axiosMock
+      .onGet("/api/diningcommons/2024-11-25/portola")
+      .reply(() => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve([200, mealFixtures.threeMeals]);
+          }, 100);
+        });
       });
+
+    const freshQueryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
     });
 
     render(
-      <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={freshQueryClient}>
         <MemoryRouter initialEntries={["/diningcommons/2024-11-25/portola"]}>
           <MealTimesPage />
         </MemoryRouter>
       </QueryClientProvider>,
     );
 
-    // Check that loading spinner is displayed
     expect(screen.getByText("Loading meals...")).toBeInTheDocument();
     expect(screen.getByRole("status")).toBeInTheDocument();
 
-    // Wait for data to load
     await screen.findByText("Breakfast");
   });
 
-  test("displays 'No meals offered today' when there are no meals", async () => {
+  test("displays 'No meals offered today.' when there are no meals", async () => {
     axiosMock.reset();
-    axiosMock.onGet("/api/diningcommons/2024-11-25/portola").reply(200, []);
+    axiosMock
+      .onGet("/api/diningcommons/2024-11-25/portola")
+      .reply(() => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve([200, []]);
+          }, 10);
+        });
+      });
+
+    const freshQueryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
 
     render(
-      <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={freshQueryClient}>
         <MemoryRouter initialEntries={["/diningcommons/2024-11-25/portola"]}>
           <MealTimesPage />
         </MemoryRouter>
       </QueryClientProvider>,
     );
 
-    // Wait for the message to appear
     await screen.findByText("No meals offered today.");
-
-    // Ensure the message is displayed
     expect(screen.getByText("No meals offered today.")).toBeInTheDocument();
+    expect(screen.queryByText("Loading meals...")).not.toBeInTheDocument();
+  });
+
+  test("displays loading when fetching empty meals array", async () => {
+    axiosMock.reset();
+    let resolvePromise;
+    const promise = new Promise((resolve) => {
+      resolvePromise = resolve;
+    });
+
+    axiosMock
+      .onGet("/api/diningcommons/2024-11-25/portola")
+      .reply(() => promise);
+
+    const freshQueryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+
+    render(
+      <QueryClientProvider client={freshQueryClient}>
+        <MemoryRouter initialEntries={["/diningcommons/2024-11-25/portola"]}>
+          <MealTimesPage />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    // Should show loading initially
+    expect(screen.getByText("Loading meals...")).toBeInTheDocument();
+
+    // Resolve with empty array
+    resolvePromise([200, []]);
+
+    // Should eventually show no meals message
+    await screen.findByText("No meals offered today.");
   });
 });

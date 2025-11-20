@@ -124,7 +124,13 @@ describe("MenuItemPage renders table correctly", () => {
     axiosMock.reset();
     axiosMock
       .onGet("/api/diningcommons/2025-03-11/carrillo/breakfast")
-      .reply(200, []);
+      .reply(() => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve([200, []]);
+          }, 10);
+        });
+      });
     axiosMock
       .onGet("/api/systemInfo")
       .reply(200, systemInfoFixtures.showingNeither);
@@ -132,8 +138,16 @@ describe("MenuItemPage renders table correctly", () => {
       .onGet("/api/currentUser")
       .reply(200, apiCurrentUserFixtures.userOnly);
 
+    const freshQueryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+
     render(
-      <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={freshQueryClient}>
         <MemoryRouter>
           <MenuItemPage />
         </MemoryRouter>
@@ -144,8 +158,90 @@ describe("MenuItemPage renders table correctly", () => {
     await screen.findByText("No menu items offered today.");
 
     // Ensure the message is displayed
-    expect(
-      screen.getByText("No menu items offered today."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("No menu items offered today.")).toBeInTheDocument();
+    expect(screen.queryByText("Loading menu items...")).not.toBeInTheDocument();
+  });
+
+  test("displays loading spinner while fetching data", async () => {
+    axiosMock.reset();
+    axiosMock
+      .onGet("/api/diningcommons/2025-03-11/carrillo/breakfast")
+      .reply(() => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve([200, menuItemFixtures.fiveMenuItems]);
+          }, 100);
+        });
+      });
+    axiosMock
+      .onGet("/api/systemInfo")
+      .reply(200, systemInfoFixtures.showingNeither);
+    axiosMock
+      .onGet("/api/currentUser")
+      .reply(200, apiCurrentUserFixtures.userOnly);
+
+    const freshQueryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+
+    render(
+      <QueryClientProvider client={freshQueryClient}>
+        <MemoryRouter>
+          <MenuItemPage />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    expect(screen.getByText("Loading menu items...")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toBeInTheDocument();
+
+    await screen.findByTestId("MenuItemTable-cell-row-0-col-name");
+  });
+
+  test("displays loading when fetching empty menu items array", async () => {
+    axiosMock.reset();
+    let resolvePromise;
+    const promise = new Promise((resolve) => {
+      resolvePromise = resolve;
+    });
+
+    axiosMock
+      .onGet("/api/diningcommons/2025-03-11/carrillo/breakfast")
+      .reply(() => promise);
+    axiosMock
+      .onGet("/api/systemInfo")
+      .reply(200, systemInfoFixtures.showingNeither);
+    axiosMock
+      .onGet("/api/currentUser")
+      .reply(200, apiCurrentUserFixtures.userOnly);
+
+    const freshQueryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+
+    render(
+      <QueryClientProvider client={freshQueryClient}>
+        <MemoryRouter>
+          <MenuItemPage />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    // Should show loading initially
+    expect(screen.getByText("Loading menu items...")).toBeInTheDocument();
+
+    // Resolve with empty array
+    resolvePromise([200, []]);
+
+    // Should eventually show no menu items message
+    await screen.findByText("No menu items offered today.");
   });
 });
