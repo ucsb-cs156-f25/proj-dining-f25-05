@@ -119,4 +119,31 @@ describe("MenuItemPage renders table correctly", () => {
       ).toHaveTextContent(menuItemFixtures.fiveMenuItems[i].station);
     }
   });
+
+  test("displays 'No menu items offered today.' when there are no menu items", async () => {
+    axiosMock.reset();
+    axiosMock
+      .onGet("/api/diningcommons/2025-03-11/carrillo/breakfast")
+      .reply(200, []);
+    axiosMock
+      .onGet("/api/systemInfo")
+      .reply(200, systemInfoFixtures.showingNeither);
+    axiosMock
+      .onGet("/api/currentUser")
+      .reply(200, apiCurrentUserFixtures.userOnly);
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <MenuItemPage />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    // Wait for the message to appear
+    await screen.findByText("No menu items offered today.");
+
+    // Ensure the message is displayed
+    expect(screen.getByText("No menu items offered today.")).toBeInTheDocument();
+  });
 });

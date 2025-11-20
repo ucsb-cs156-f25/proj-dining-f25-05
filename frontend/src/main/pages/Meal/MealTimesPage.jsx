@@ -11,14 +11,17 @@ export default function MealTimesPage() {
   const {
     data: meals,
     error: _error,
-    status: _status,
+    status,
+    isFetching,
   } = useBackend(
     // Stryker disable next-line all : don't test internal caching of React Query
     [`/api/diningcommons/${dateTime}/${diningCommonsCode}`],
     { url: `/api/diningcommons/${dateTime}/${diningCommonsCode}` },
-    // Stryker disable next-line all : don't test default value of empty list
-    [],
   );
+
+  // Show loading if we're fetching and don't have real data yet (just initial data)
+  const isLoading = isFetching && (!meals || meals.length === 0);
+  const hasData = meals && meals.length > 0;
 
   return (
     <BasicLayout>
@@ -27,12 +30,21 @@ export default function MealTimesPage() {
         <h1>
           Meals at {diningCommonsCode} for {dateTime}
         </h1>
-        {meals && (
+        {isLoading ? (
+          <div className="text-center mt-4">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p className="mt-2">Loading meals...</p>
+          </div>
+        ) : hasData ? (
           <MealTable
             meals={meals}
             dateTime={dateTime}
             diningCommonsCode={diningCommonsCode}
           />
+        ) : (
+          <p className="text-center mt-4">No meals offered today.</p>
         )}
       </div>
     </BasicLayout>
