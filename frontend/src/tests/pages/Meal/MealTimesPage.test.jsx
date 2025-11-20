@@ -70,22 +70,20 @@ describe("MealTimesPage tests", () => {
     expect(screen.getByText("Breakfast")).toBeInTheDocument();
     expect(screen.getByText("Lunch")).toBeInTheDocument();
     expect(screen.getByText("Dinner")).toBeInTheDocument();
-    
+
     // Verify loading is not shown when we have data
     expect(screen.queryByText("Loading meals...")).not.toBeInTheDocument();
   });
 
   test("displays loading spinner while fetching data", async () => {
     axiosMock.reset();
-    axiosMock
-      .onGet("/api/diningcommons/2024-11-25/portola")
-      .reply(() => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve([200, mealFixtures.threeMeals]);
-          }, 100);
-        });
+    axiosMock.onGet("/api/diningcommons/2024-11-25/portola").reply(() => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve([200, mealFixtures.threeMeals]);
+        }, 100);
       });
+    });
 
     const freshQueryClient = new QueryClient({
       defaultOptions: {
@@ -111,15 +109,13 @@ describe("MealTimesPage tests", () => {
 
   test("displays 'No meals offered today.' when there are no meals", async () => {
     axiosMock.reset();
-    axiosMock
-      .onGet("/api/diningcommons/2024-11-25/portola")
-      .reply(() => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve([200, []]);
-          }, 10);
-        });
+    axiosMock.onGet("/api/diningcommons/2024-11-25/portola").reply(() => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve([200, []]);
+        }, 10);
       });
+    });
 
     const freshQueryClient = new QueryClient({
       defaultOptions: {

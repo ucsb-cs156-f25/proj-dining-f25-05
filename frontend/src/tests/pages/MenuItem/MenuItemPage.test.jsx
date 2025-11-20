@@ -118,7 +118,7 @@ describe("MenuItemPage renders table correctly", () => {
         screen.getByTestId(`MenuItemTable-cell-row-${i}-col-station`),
       ).toHaveTextContent(menuItemFixtures.fiveMenuItems[i].station);
     }
-    
+
     // Verify loading is not shown when we have data
     expect(screen.queryByText("Loading menu items...")).not.toBeInTheDocument();
   });
@@ -161,7 +161,9 @@ describe("MenuItemPage renders table correctly", () => {
     await screen.findByText("No menu items offered today.");
 
     // Ensure the message is displayed
-    expect(screen.getByText("No menu items offered today.")).toBeInTheDocument();
+    expect(
+      screen.getByText("No menu items offered today."),
+    ).toBeInTheDocument();
     expect(screen.queryByText("Loading menu items...")).not.toBeInTheDocument();
   });
 
@@ -278,7 +280,7 @@ describe("MenuItemPage renders table correctly", () => {
 
     // Wait for data - this ensures isFetching becomes false and menuItems has length > 0
     await screen.findByText("Oatmeal (vgn)");
-    
+
     // At this point: isFetching=false, menuItems exists with length > 0
     // So: isLoading = false && (!menuItems || menuItems.length === 0)
     //              = false && (false || false) = false
@@ -288,7 +290,7 @@ describe("MenuItemPage renders table correctly", () => {
 
   test("shows data without loading during background refetch", async () => {
     axiosMock.reset();
-    
+
     let callCount = 0;
     axiosMock
       .onGet("/api/diningcommons/2025-03-11/carrillo/breakfast")
@@ -333,10 +335,12 @@ describe("MenuItemPage renders table correctly", () => {
     // Wait for initial data to load
     await screen.findByText("Oatmeal (vgn)");
     expect(screen.getByText("Oatmeal (vgn)")).toBeInTheDocument();
-    
+
     // Trigger a refetch by invalidating the query
-    await freshQueryClient.refetchQueries(['/api/diningcommons/2025-03-11/carrillo/breakfast']);
-    
+    await freshQueryClient.refetchQueries([
+      "/api/diningcommons/2025-03-11/carrillo/breakfast",
+    ]);
+
     // After refetch completes, data should still be shown
     expect(screen.getByText("Oatmeal (vgn)")).toBeInTheDocument();
     expect(screen.queryByText("Loading menu items...")).not.toBeInTheDocument();
