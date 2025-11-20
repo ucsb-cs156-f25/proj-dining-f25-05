@@ -11,7 +11,6 @@ export default function MealTimesPage() {
   const {
     data: meals,
     error: _error,
-    status,
     isFetching,
   } = useBackend(
     // Stryker disable next-line all : don't test internal caching of React Query

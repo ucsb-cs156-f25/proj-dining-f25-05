@@ -144,6 +144,8 @@ describe("MenuItemPage renders table correctly", () => {
     await screen.findByText("No menu items offered today.");
 
     // Ensure the message is displayed
-    expect(screen.getByText("No menu items offered today.")).toBeInTheDocument();
+    expect(
+      screen.getByText("No menu items offered today."),
+    ).toBeInTheDocument();
   });
 });

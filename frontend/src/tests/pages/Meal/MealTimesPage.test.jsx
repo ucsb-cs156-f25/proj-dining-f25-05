@@ -76,15 +76,13 @@ describe("MealTimesPage tests", () => {
   test("displays loading spinner while fetching data", async () => {
     // Use a delay to ensure we can catch the loading state
     axiosMock.reset();
-    axiosMock
-      .onGet("/api/diningcommons/2024-11-25/portola")
-      .reply(() => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve([200, mealFixtures.threeMeals]);
-          }, 100);
-        });
+    axiosMock.onGet("/api/diningcommons/2024-11-25/portola").reply(() => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve([200, mealFixtures.threeMeals]);
+        }, 100);
       });
+    });
 
     render(
       <QueryClientProvider client={queryClient}>

@@ -11,11 +11,7 @@ export default function MenuItemPage() {
     "dining-commons-code": diningCommons,
     meal,
   } = useParams();
-  const {
-    data: menuItems,
-    status,
-    isFetching,
-  } = useBackend(
+  const { data: menuItems, isFetching } = useBackend(
     // Stryker disable next-line all : don't test internal caching of React Query
     [`/api/diningcommons/${date}/${diningCommons}/${meal}`],
     {
