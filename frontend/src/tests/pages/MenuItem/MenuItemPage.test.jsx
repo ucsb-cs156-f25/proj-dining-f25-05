@@ -2,6 +2,7 @@ import axios from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { vi } from "vitest";
+import userEvent from "@testing-library/user-event";
 
 import { systemInfoFixtures } from "fixtures/systemInfoFixtures";
 import { apiCurrentUserFixtures } from "fixtures/currentUserFixtures";
@@ -11,6 +12,8 @@ import MenuItemPage from "main/pages/MenuItem/MenuItemPage";
 import { menuItemFixtures } from "fixtures/menuItemFixtures";
 
 const mockToast = vi.fn();
+const mockNavigate = vi.fn();
+
 vi.mock("react-toastify", async () => {
   const originalModule = await vi.importActual("react-toastify");
   return {
@@ -30,6 +33,7 @@ vi.mock("react-router", async () => {
       "dining-commons-code": "carrillo",
       meal: "breakfast",
     }),
+    useNavigate: () => mockNavigate,
   };
 });
 
@@ -118,5 +122,44 @@ describe("MenuItemPage renders table correctly", () => {
         screen.getByTestId(`MenuItemTable-cell-row-${i}-col-station`),
       ).toHaveTextContent(menuItemFixtures.fiveMenuItems[i].station);
     }
+  });
+
+  test("date selector is present and navigates on change", async () => {
+    mockNavigate.mockClear();
+    axiosMock
+      .onGet("/api/diningcommons/2025-03-11/carrillo/breakfast")
+      .reply(200, menuItemFixtures.fiveMenuItems);
+    axiosMock
+      .onGet("/api/systemInfo")
+      .reply(200, systemInfoFixtures.showingNeither);
+    axiosMock
+      .onGet("/api/currentUser")
+      .reply(200, apiCurrentUserFixtures.userOnly);
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <MenuItemPage />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    // Wait for the page to load
+    await screen.findByTestId("MenuItemTable-cell-row-0-col-name");
+
+    // Check that date selector is present
+    const dateSelector = screen.getByTestId("date-selector");
+    expect(dateSelector).toBeInTheDocument();
+    expect(dateSelector).toHaveValue("2025-03-11");
+
+    // Change the date
+    const user = userEvent.setup();
+    await user.clear(dateSelector);
+    await user.type(dateSelector, "2025-03-15");
+
+    // Verify navigation was called with the new URL
+    expect(mockNavigate).toHaveBeenCalledWith(
+      "/diningcommons/2025-03-15/carrillo/breakfast",
+    );
   });
 });
