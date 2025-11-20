@@ -11,7 +11,10 @@ export default function MenuItemPage() {
     "dining-commons-code": diningCommons,
     meal,
   } = useParams();
-  const { data: menuItems, isFetching } = useBackend(
+  const {
+    data: menuItems,
+    isFetching,
+  } = useBackend(
     // Stryker disable next-line all : don't test internal caching of React Query
     [`/api/diningcommons/${date}/${diningCommons}/${meal}`],
     {
@@ -21,7 +24,7 @@ export default function MenuItemPage() {
     },
   );
 
-  // Show loading if we're fetching and don't have real data yet (just initial data)
+  // Show loading if we're fetching and don't have real data yet (just initial datas)
   const isLoading = isFetching && (!menuItems || menuItems.length === 0);
   const hasData = menuItems && menuItems.length > 0;
 
