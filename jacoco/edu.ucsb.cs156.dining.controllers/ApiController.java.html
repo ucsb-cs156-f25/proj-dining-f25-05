@@ -47,17 +47,5 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 <span class="fc" id="L47">        &quot;type&quot;, e.getClass().getSimpleName(),</span>
 <span class="fc" id="L48">        &quot;message&quot;, e.getMessage());</span>
   }
-
-  /**
-   * This method handles the UnsupportedOperationException for forbidden operations.
-   *
-   * @param e the exception
-   * @return a map with the message of the exception
-   */
-  @ExceptionHandler({UnsupportedOperationException.class})
-  @ResponseStatus(HttpStatus.FORBIDDEN)
-  public Object handleUnsupportedOperationException(Throwable e) {
-<span class="fc" id="L60">    return Map.of(&quot;message&quot;, e.getMessage());</span>
-  }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
