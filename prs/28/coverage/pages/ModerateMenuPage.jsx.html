@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for pages/ModeratePage.jsx</title>
+    <title>Code coverage report for pages/ModerateMenuPage.jsx</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
@@ -19,20 +19,20 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../index.html">All files</a> / <a href="index.html">pages</a> ModeratePage.jsx</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">pages</a> ModerateMenuPage.jsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
@@ -99,20 +99,14 @@
 <a name='L34'></a><a href='#L34'>34</a>
 <a name='L35'></a><a href='#L35'>35</a>
 <a name='L36'></a><a href='#L36'>36</a>
-<a name='L37'></a><a href='#L37'>37</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -120,7 +114,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -136,41 +140,43 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React from "react";
-import { useBackend } from "main/utils/useBackend";
-import { useCurrentUser, hasRole } from "main/utils/currentUser";
+import { Card, Button } from "react-bootstrap";
+import { Link } from "react-router";
 import BasicLayout from "main/layouts/BasicLayout/BasicLayout";
-import ReviewsTable from "main/components/Reviews/ReviewsTable";
 &nbsp;
-const Moderate = () =&gt; {
-  const currentUser = useCurrentUser();
-&nbsp;
-  const {
-    data: reviews,
-    error: _error,
-    status: _status,
-  } = useBackend(
-    // Stryker disable next-line all : don't test internal caching of React Query
-    ["/api/reviews/needsmoderation"],
-    { method: "GET", url: "/api/reviews/needsmoderation" },
-    // Stryker disable next-line all : don't test internal caching of React Query
-    [],
-  );
-&nbsp;
-  const moderatorOptions =
-    hasRole(currentUser, "ROLE_ADMIN") ||
-    hasRole(currentUser, "ROLE_MODERATOR");
-&nbsp;
+const ModerateMenuPage = () =&gt; {
   return (
     &lt;BasicLayout&gt;
       &lt;div className="pt-2"&gt;
-        &lt;h1&gt;Moderation Page&lt;/h1&gt;
-        &lt;ReviewsTable reviews={reviews} moderatorOptions={moderatorOptions} /&gt;
+        &lt;h1&gt;Moderator Actions&lt;/h1&gt;
+        &lt;Card className="mt-3" data-testid="moderate-menu-reviews-card"&gt;
+          &lt;Card.Body&gt;
+            &lt;Card.Title&gt;Moderate Reviews&lt;/Card.Title&gt;
+            &lt;Card.Text&gt;
+              Review and approve or reject pending menu item reviews.
+            &lt;/Card.Text&gt;
+            &lt;Button as={Link} to="/moderate/reviews" variant="primary"&gt;
+              Go to Moderate Reviews
+            &lt;/Button&gt;
+          &lt;/Card.Body&gt;
+        &lt;/Card&gt;
+        &lt;Card className="mt-3" data-testid="moderate-menu-aliases-card"&gt;
+          &lt;Card.Body&gt;
+            &lt;Card.Title&gt;Moderate Aliases&lt;/Card.Title&gt;
+            &lt;Card.Text&gt;
+              Coming soon: manage user alias requests from this page.
+            &lt;/Card.Text&gt;
+            &lt;Button variant="secondary" disabled&gt;
+              Coming Soon
+            &lt;/Button&gt;
+          &lt;/Card.Body&gt;
+        &lt;/Card&gt;
       &lt;/div&gt;
     &lt;/BasicLayout&gt;
   );
 };
 &nbsp;
-export default Moderate;
+export default ModerateMenuPage;
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
