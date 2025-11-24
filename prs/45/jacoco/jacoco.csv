@@ -9,7 +9,7 @@ proj-dining,edu.ucsb.cs156.dining.controllers,UsersController,0,184,0,10,0,38,0,
 proj-dining,edu.ucsb.cs156.dining.controllers,CSRFController,0,5,0,0,0,2,0,2,0,2
 proj-dining,edu.ucsb.cs156.dining.controllers,UserInfoController,0,6,0,0,0,2,0,2,0,2
 proj-dining,edu.ucsb.cs156.dining.controllers,SystemInfoController,0,7,0,0,0,2,0,2,0,2
-proj-dining,edu.ucsb.cs156.dining.controllers,ReviewController,0,334,0,24,0,75,0,28,0,16
+proj-dining,edu.ucsb.cs156.dining.controllers,ReviewController,0,351,0,24,0,79,0,30,0,18
 proj-dining,edu.ucsb.cs156.dining.controllers,UCSBDiningMenuItemsController,0,95,0,4,0,21,0,6,0,4
 proj-dining,edu.ucsb.cs156.dining.controllers,AdminsController.AdminDTO,0,18,0,0,0,3,0,2,0,2
 proj-dining,edu.ucsb.cs156.dining.controllers,ApiController,0,29,0,0,0,8,0,6,0,6
